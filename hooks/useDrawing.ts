@@ -24,23 +24,35 @@ export function useDrawing() {
     return points;
   }
 
+  const clear = () => {
+    setPaths([]);
+  };
+
+  const undo = () => {
+    setPaths(prev => prev.slice(0, -1));
+  };
+
+  const twoFingerTap = Gesture.Tap()
+    .minPointers(2)
+    .numberOfTaps(1)
+    .runOnJS(true)
+    .onEnd(() => {
+      undo();
+    });
+
   const panGesture = Gesture.Pan()
     .minDistance(0)
     .maxPointers(1)
     .runOnJS(true)
     .onBegin(({ x, y }) => {
+      const newPoint = { x, y };
       const newPath: DrawPath = {
-        points: [{ x, y }]
+        points: [newPoint]
       };
       currentPath.current = newPath;
+      previousPoint.current = newPoint;
 
       setPaths(prev => [...prev, newPath]);
-    })
-    .onStart(({ x, y }) => {
-      if (currentPath.current) {
-        currentPath.current.points.push({ x, y });
-        setPaths(prev => [...prev.slice(0, -1), { ...currentPath.current! }]);
-      }
     })
     .onUpdate(({ x, y }) => {
       if (!currentPath.current || !previousPoint.current) {
@@ -68,18 +80,13 @@ export function useDrawing() {
       previousPoint.current = null;
     });
 
-  const clear = () => {
-    setPaths([]);
-  };
-
-  const undo = () => {
-    setPaths(prev => prev.slice(0, -1));
-  };
+  const gesture = Gesture.Simultaneous(
+    panGesture,
+    twoFingerTap
+  );
 
   return {
     paths,
-    gesture: panGesture,
-    clear,
-    undo,
+    gesture
   };
 }

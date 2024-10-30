@@ -13,7 +13,18 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-      }}>
+      }}
+      initialRouteName="draw"
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Files',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'folder' : 'folder-outline'} color={color} />
+          ),
+        }}
+      />
       <Tabs.Screen
         name="draw"
         options={{

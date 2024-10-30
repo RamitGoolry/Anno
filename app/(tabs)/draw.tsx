@@ -47,7 +47,7 @@ export default function DrawScreen() {
         </GestureDetector>
         <View style={styles.indicator}>
           <Text style={{ color: textColor }}>
-            Input: Any
+            Input: Any (Enabled with two fingers)
           </Text>
         </View>
       </GestureHandlerRootView>
