@@ -1,19 +1,30 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Canvas, Path } from "@shopify/react-native-skia";
 import { GestureDetector } from "react-native-gesture-handler";
-import { StyleSheet, View, useWindowDimensions } from "react-native";
+import { StyleSheet, View, Text, useWindowDimensions } from "react-native";
 import React, { useMemo, useState } from "react";
 import { ThemedView } from '../../components/ThemedView';
 import { useDrawing } from "@/hooks/useDrawing";
 import { Point } from "@/types/drawing";
 import Pdf from 'react-native-pdf';
+import { useLocalSearchParams } from "expo-router";
 
 export default function DrawScreen() {
   const { width, height } = useWindowDimensions();
   const { paths, gesture, scale, page } = useDrawing();
+  const params = useLocalSearchParams();
 
-  const [pdfSource, _setPdfSource] = useState({
-    uri: 'https://cseweb.ucsd.edu/classes/sp18/cse291-c/post/schedule/p74-dean.pdf',
+  if (!params.uri) {
+    return (
+      <ThemedView style={styles.container}>
+        <Text>Please select a PDF to annotate.</Text>
+      </ThemedView>
+    );
+  }
+
+  // TODO: Remove the default URI
+  const [pdfSource] = useState({
+    uri: params.uri as string || '',
     cache: true,
   });
 

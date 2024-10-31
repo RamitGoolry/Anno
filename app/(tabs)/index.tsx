@@ -1,28 +1,38 @@
 // app/(tabs)/index.tsx
-import { Button, FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { ThemedView } from '../../components/ThemedView';
 import { Text } from 'react-native';
 import { useThemeColor } from '../../hooks/useThemeColor';
 import { useLocalFiles } from '@/hooks/useLocalFiles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
 import { LocalFile } from '@/types/files';
 import { File, FolderOpen } from 'lucide-react';
+import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
   const { files, isLoading, importFile } = useLocalFiles();
-  const navigation = useNavigation();
+  const router = useRouter();
   const textColor = useThemeColor({}, 'text');
 
   const handleImport = async () => {
     const fileUri = await importFile();
     if (fileUri) {
-      navigation.navigate('Draw', { uri: fileUri, cache: true });
+      router.push({
+        pathname: '/draw',
+        params: {
+          uri: fileUri,
+        }
+      })
     }
   };
 
   const openFile = async (file: LocalFile) => {
-    navigation.navigate('Draw', { uri: file.uri, cache: true });
+    router.push({
+      pathname: '/draw',
+      params: {
+        uri: file.uri,
+      }
+    })
   };
 
   const renderFileItem = ({ item }: { item: LocalFile }) => {
@@ -46,10 +56,17 @@ export default function HomeScreen() {
         <Text style={[styles.title, { color: textColor }]}>
           PDF Files
         </Text>
-        <Button onPress={handleImport}>
-          <FolderOpen size={20} className="mr-2" />
-          Import PDF
-        </Button>
+        <TouchableOpacity
+          style={styles.importButton}
+          onPress={handleImport}
+        >
+          <View style={styles.buttonContent}>
+            <FolderOpen size={20} color={textColor} />
+            <Text style={[styles.buttonText, { color: textColor }]}>
+              Import PDF
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
 
       {files.length > 0 ? (
@@ -116,5 +133,19 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     opacity: 0.7,
+  },
+  importButton: {
+    backgroundColor: '#0084ff',
+    borderRadius: 8,
+    padding: 12,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '500',
   },
 });

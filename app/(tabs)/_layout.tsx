@@ -32,6 +32,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'brush' : 'brush-outline'} color={color} />
           ),
+          href: null,
         }}
       />
     </Tabs>
