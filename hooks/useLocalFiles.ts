@@ -54,6 +54,16 @@ export function useLocalFiles() {
     }
   }
 
+  const deleteFile = async (uri: string) => {
+    try {
+      await RNFS.unlink(uri);
+      await loadFiles();
+    } catch (error) {
+      console.error('Error deleting file: ', error);
+      Alert.alert('Error', 'Failed to delete file');
+    }
+  };
+
   useEffect(() => {
     loadFiles();
   }, []);
@@ -62,5 +72,6 @@ export function useLocalFiles() {
     files,
     isLoading,
     importFile,
+    deleteFile,
   };
 }

@@ -1,5 +1,5 @@
 // app/(tabs)/index.tsx
-import { FlatList, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, View } from 'react-native';
 import { ThemedView } from '../../components/ThemedView';
 import { Text } from 'react-native';
 import { useThemeColor } from '../../hooks/useThemeColor';
@@ -10,7 +10,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
-  const { files, isLoading, importFile } = useLocalFiles();
+  const { files, isLoading, importFile, deleteFile } = useLocalFiles();
   const router = useRouter();
   const textColor = useThemeColor({}, 'text');
 
@@ -35,20 +35,59 @@ export default function HomeScreen() {
     })
   };
 
-  const renderFileItem = ({ item }: { item: LocalFile }) => {
-    return (
-      <TouchableOpacity
-        style={styles.fileItem}
-        onPress={() => openFile(item)}
-      >
-        <MaterialCommunityIcons name="file-pdf-box" size={24} color={textColor} />
-        <View style={styles.fileInfo}>
-          <Text style={[styles.fileName, { color: textColor }]}>{item.name}</Text>
-          <Text style={[styles.fileDate, { color: textColor }]}>{item.lastModified?.toLocaleString()}</Text>
-        </View>
-      </TouchableOpacity>
-    )
+  const handleDelete = async (file: LocalFile) => {
+    Alert.alert(
+      'Delete File',
+      `Are you sure you want to delete ${file.name}?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: () => deleteFile(file.uri),
+          style: 'destructive',
+        },
+      ],
+    );
   };
+
+  const renderFileItem = ({ item }: { item: LocalFile }) => (
+    <View style={styles.fileItem}>
+      <View style={styles.leftContent}>
+        <MaterialCommunityIcons
+          name="file-pdf-box"
+          size={24}
+          color={textColor}
+        />
+        <TouchableOpacity
+          style={styles.fileTouchable}
+          onPress={() => openFile(item)}
+        >
+          <View style={styles.fileInfo}>
+            <Text style={[styles.fileName, { color: textColor }]} numberOfLines={1}>
+              {item.name}
+            </Text>
+            <Text style={[styles.fileDate, { color: textColor }]}>
+              {item.lastModified?.toLocaleDateString()}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity
+        onPress={() => handleDelete(item)}
+        style={styles.deleteButton}
+      >
+        <MaterialCommunityIcons
+          name="delete-outline"
+          size={24}
+          color="red"
+        />
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <ThemedView style={styles.container}>
@@ -102,29 +141,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-  fileList: {
-    flex: 1,
-  },
-  fileItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  fileInfo: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  fileName: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  fileDate: {
-    fontSize: 12,
-    marginTop: 4,
-    opacity: 0.7,
-  },
   emptyState: {
     flex: 1,
     justifyContent: 'center',
@@ -147,5 +163,42 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  fileList: {
+    flex: 1,
+  },
+  fileItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',  // This pushes content to edges
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  leftContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,  // Take up available space
+  },
+  fileTouchable: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  fileInfo: {
+    justifyContent: 'center',
+  },
+  fileName: {
+    fontSize: 16,
+    fontWeight: '500',
+    paddingTop: 4,
+  },
+  fileDate: {
+    fontSize: 12,
+    marginTop: 6,
+    opacity: 0.7,
+  },
+  deleteButton: {
+    padding: 8,
   },
 });
