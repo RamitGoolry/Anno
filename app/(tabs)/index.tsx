@@ -8,8 +8,10 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { LocalFile } from '@/types/files';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const { files, isLoading, importFile, deleteFile } = useLocalFiles();
   const router = useRouter();
   const textColor = useThemeColor({}, 'text');
@@ -90,38 +92,42 @@ export default function HomeScreen() {
   );
 
   return (
-    <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: textColor }]}>
-          PDF Files
-        </Text>
-        <TouchableOpacity
-          style={styles.importButton}
-          onPress={handleImport}
-        >
-          <View style={styles.buttonContent}>
-            <MaterialCommunityIcons name="folder-plus" size={24} color={textColor} />
-            <Text style={[styles.buttonText, { color: textColor }]}>
-              Import PDF
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      {files.length > 0 ? (
-        <FlatList
-          data={files}
-          renderItem={renderFileItem}
-          keyExtractor={item => item.uri}
-          style={styles.fileList}
-        />
-      ) : (
-        <View style={styles.emptyState}>
-          <Text style={[styles.emptyText, { color: textColor }]}>
-            {isLoading ? 'Loading...' : 'No PDFs. Tap Import to add files.'}
+    <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: textColor }]}>
+            PDF Files
           </Text>
         </View>
-      )}
+
+        {files.length > 0 ? (
+          <FlatList
+            data={files}
+            renderItem={renderFileItem}
+            keyExtractor={item => item.uri}
+            style={styles.fileList}
+          />
+        ) : (
+          <View style={styles.emptyState}>
+            <Text style={[styles.emptyText, { color: textColor }]}>
+              No PDFs. Tap + to add files.
+            </Text>
+          </View>
+        )}
+      </View>
+
+      <View style={[styles.fabContainer, { paddingBottom: insets.bottom }]}>
+        <TouchableOpacity
+          style={[styles.fabButton]}
+          onPress={handleImport}
+        >
+          <MaterialCommunityIcons
+            name="plus"
+            size={30}
+            color="white"
+          />
+        </TouchableOpacity>
+      </View>
     </ThemedView>
   );
 }
@@ -129,16 +135,17 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 32
+  },
+  content: {
+    flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   title: {
-    fontSize: 24,
+    fontSize: 48,
     fontWeight: 'bold',
   },
   emptyState: {
@@ -150,10 +157,29 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.7,
   },
-  importButton: {
+  fabContainer: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    left: 0,
+    alignItems: 'flex-end',
+    paddingRight: 20,
+  },
+  fabButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: '#0084ff',
-    borderRadius: 8,
-    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   buttonContent: {
     flexDirection: 'row',
