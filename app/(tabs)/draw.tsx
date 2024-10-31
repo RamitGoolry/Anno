@@ -11,10 +11,10 @@ import Pdf from 'react-native-pdf';
 
 export default function DrawScreen() {
   const { width, height } = useWindowDimensions();
-  const { paths, gesture, scale, translateX, translateY } = useDrawing();
+  const { paths, gesture, scale, page } = useDrawing();
 
   const [pdfSource, _setPdfSource] = useState({
-    uri: 'https://pdfobject.com/pdf/sample.pdf',
+    uri: 'https://arxiv.org/pdf/2310.07554',
     cache: true,
   });
 
@@ -49,7 +49,12 @@ export default function DrawScreen() {
         <View style={styles.pdfContainer}>
           <Pdf
             source={pdfSource}
-            style={[styles.pdf, { width, height, transform: [{ scale }, { translateX }, { translateY }] }]}
+            style={[styles.pdf, { width, height }]}
+            page={page}
+            scale={scale}
+            enablePaging={true}
+            showsHorizontalScrollIndicator={true}
+            showsVerticalScrollIndicator={true}
             onLoadComplete={(numberOfPages, _filePath) => {
               console.log(`Loaded ${numberOfPages} pages`);
             }}

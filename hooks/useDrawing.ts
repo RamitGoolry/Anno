@@ -3,8 +3,9 @@ import { Gesture, PointerType } from "react-native-gesture-handler";
 import { Point, DrawPath } from "@/types/drawing";
 
 const MIN_ZOOM = 0.5;
-const MAX_ZOOM = 2;
-const MAX_VELOCITY = 3;
+const MAX_ZOOM = 5;
+
+const FLIP_DELAY = 100;
 
 function interpolatePoints(start: Point, end: Point): Point[] {
   const points: Point[] = [];
@@ -26,12 +27,10 @@ function interpolatePoints(start: Point, end: Point): Point[] {
 export function useDrawing() {
   const [paths, setPaths] = useState<DrawPath[]>([]);
   const [scale, setScale] = useState(1);
-  const [translateX, setTranslateX] = useState(0);
-  const [translateY, setTranslateY] = useState(0);
+  const [page, setPage] = useState(1);
 
   const currentPath = useRef<DrawPath | null>(null);
   const previousPoint = useRef<Point | null>(null);
-  const isPencil = useRef(false);
 
   const undo = () => {
     setPaths(prev => prev.slice(0, -1));
@@ -95,8 +94,8 @@ export function useDrawing() {
       undo();
     });
 
-  // Finger Navigation: Panning
-  const panGesture = Gesture.Pan()
+  // Finger Navigation: Page navigation
+  const pageGesture = Gesture.Pan()
     .minPointers(1)
     .runOnJS(true)
     .onBegin(({ pointerType }) => {
@@ -104,16 +103,16 @@ export function useDrawing() {
         return;
       }
     })
-    .onUpdate(({ velocityX, velocityY, pointerType }) => {
+    .onUpdate(({ velocityX, pointerType }) => {
       if (pointerType != PointerType.TOUCH) {
         return;
       }
 
-      const clampedVelocityX = Math.max(Math.min(velocityX, MAX_VELOCITY), -MAX_VELOCITY);
-      const clampedVelocityY = Math.max(Math.min(velocityY, MAX_VELOCITY), -MAX_VELOCITY);
-
-      setTranslateX(prev => prev + clampedVelocityX);
-      setTranslateY(prev => prev + clampedVelocityY);
+      if (velocityX < 0) {
+        setPage(prev => prev + 1);
+      } else if (velocityX > 0) {
+        setPage(prev => prev - 1);
+      }
     });
 
   // Finger Navigation: Pinching for zooming
@@ -130,7 +129,7 @@ export function useDrawing() {
     Gesture.Race(
       twoFingerTap,
       pinchGesture,
-      panGesture,
+      pageGesture,
     )
   );
 
@@ -138,7 +137,6 @@ export function useDrawing() {
     paths,
     gesture,
     scale,
-    translateX,
-    translateY,
+    page,
   };
 }
