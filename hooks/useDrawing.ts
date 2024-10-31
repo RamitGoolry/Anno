@@ -1,28 +1,33 @@
 import { useState, useRef } from "react";
-import { Gesture } from "react-native-gesture-handler";
+import { Gesture, PointerType } from "react-native-gesture-handler";
 import { Point, DrawPath } from "@/types/drawing";
+
+function interpolatePoints(start: Point, end: Point): Point[] {
+  const points: Point[] = [];
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  const steps = Math.max(Math.floor(distance / 2), 1);
+
+  for (let i = 0; i <= steps; i++) {
+    points.push({
+      x: start.x + (dx * i) / steps,
+      y: start.y + (dy * i) / steps,
+    });
+  }
+
+  return points;
+}
 
 export function useDrawing() {
   const [paths, setPaths] = useState<DrawPath[]>([]);
+  const [scale, setScale] = useState(1);
+  const [translateX, setTranslateX] = useState(0);
+  const [translateY, setTranslateY] = useState(0);
+
   const currentPath = useRef<DrawPath | null>(null);
   const previousPoint = useRef<Point | null>(null);
-
-  const interpolatePoints = (start: Point, end: Point): Point[] => {
-    const points: Point[] = [];
-    const dx = end.x - start.x;
-    const dy = end.y - start.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const steps = Math.max(Math.floor(distance / 2), 1);
-
-    for (let i = 0; i <= steps; i++) {
-      points.push({
-        x: start.x + (dx * i) / steps,
-        y: start.y + (dy * i) / steps,
-      });
-    }
-
-    return points;
-  }
+  const isPencil = useRef(false);
 
   const undo = () => {
     setPaths(prev => prev.slice(0, -1));
@@ -36,11 +41,15 @@ export function useDrawing() {
       undo();
     });
 
-  const panGesture = Gesture.Pan()
+  const drawGesture = Gesture.Pan()
     .minDistance(0)
     .maxPointers(1)
     .runOnJS(true)
-    .onBegin(({ x, y }) => {
+    .onBegin(({ x, y, pointerType }) => {
+      if (pointerType != PointerType.STYLUS) {
+        return;
+      }
+
       const newPoint = { x, y };
       const newPath: DrawPath = {
         points: [newPoint]
@@ -50,7 +59,11 @@ export function useDrawing() {
 
       setPaths(prev => [...prev, newPath]);
     })
-    .onUpdate(({ x, y }) => {
+    .onUpdate(({ x, y, pointerType }) => {
+      if (pointerType != PointerType.STYLUS) {
+        return;
+      }
+
       if (!currentPath.current || !previousPoint.current) {
         // If we somehow lost our references, create new ones
         const newPoint = { x, y };
@@ -77,7 +90,7 @@ export function useDrawing() {
     });
 
   const gesture = Gesture.Simultaneous(
-    panGesture,
+    drawGesture,
     twoFingerTap
   );
 
