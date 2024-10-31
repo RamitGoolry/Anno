@@ -11,7 +11,7 @@ import Pdf from 'react-native-pdf';
 
 export default function DrawScreen() {
   const { width, height } = useWindowDimensions();
-  const { paths, gesture } = useDrawing();
+  const { paths, gesture, scale, translateX, translateY } = useDrawing();
 
   const [pdfSource, _setPdfSource] = useState({
     uri: 'https://pdfobject.com/pdf/sample.pdf',
@@ -49,7 +49,7 @@ export default function DrawScreen() {
         <View style={styles.pdfContainer}>
           <Pdf
             source={pdfSource}
-            style={[styles.pdf, { width, height }]}
+            style={[styles.pdf, { width, height, transform: [{ scale }, { translateX }, { translateY }] }]}
             onLoadComplete={(numberOfPages, _filePath) => {
               console.log(`Loaded ${numberOfPages} pages`);
             }}

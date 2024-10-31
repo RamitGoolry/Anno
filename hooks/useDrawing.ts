@@ -33,14 +33,7 @@ export function useDrawing() {
     setPaths(prev => prev.slice(0, -1));
   };
 
-  const twoFingerTap = Gesture.Tap()
-    .minPointers(2)
-    .numberOfTaps(1)
-    .runOnJS(true)
-    .onEnd(() => {
-      undo();
-    });
-
+  // Stylus Drawing Gesture
   const drawGesture = Gesture.Pan()
     .minDistance(0)
     .maxPointers(1)
@@ -89,13 +82,56 @@ export function useDrawing() {
       previousPoint.current = null;
     });
 
+  // Two finger tap to undo
+  const twoFingerTap = Gesture.Tap()
+    .minPointers(2)
+    .numberOfTaps(1)
+    .runOnJS(true)
+    .onEnd(() => {
+      undo();
+    });
+
+  // Finger Navigation: Panning
+  const panGesture = Gesture.Pan()
+    .minPointers(1)
+    .runOnJS(true)
+    .onBegin(({ pointerType }) => {
+      if (pointerType != PointerType.TOUCH) {
+        return;
+      }
+    })
+    .onUpdate(({ translationX, translationY, pointerType }) => {
+      if (pointerType != PointerType.TOUCH) {
+        return;
+      }
+
+      setTranslateX(translationX);
+      setTranslateY(translationY);
+    });
+
+  // Finger Navigation: Pinching for zooming
+  const pinchGesture = Gesture.Pinch()
+    .runOnJS(true)
+    .onUpdate(({ scale }) => {
+      const clampedScale = Math.max(Math.min(scale, 5), 0.5);
+      setScale(clampedScale);
+    });
+
+
   const gesture = Gesture.Simultaneous(
     drawGesture,
-    twoFingerTap
+    Gesture.Race(
+      twoFingerTap,
+      pinchGesture,
+      panGesture,
+    )
   );
 
   return {
     paths,
-    gesture
+    gesture,
+    scale,
+    translateX,
+    translateY,
   };
 }
