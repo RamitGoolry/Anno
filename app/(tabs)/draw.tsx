@@ -1,10 +1,9 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Canvas, Path } from "@shopify/react-native-skia";
 import { GestureDetector } from "react-native-gesture-handler";
-import { StyleSheet, View, Text, useWindowDimensions } from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import React, { useMemo, useState } from "react";
 import { ThemedView } from '../../components/ThemedView';
-import { useThemeColor } from '../../hooks/useThemeColor';
 import { useDrawing } from "@/hooks/useDrawing";
 import { Point } from "@/types/drawing";
 import Pdf from 'react-native-pdf';
@@ -14,7 +13,7 @@ export default function DrawScreen() {
   const { paths, gesture, scale, page } = useDrawing();
 
   const [pdfSource, _setPdfSource] = useState({
-    uri: 'https://arxiv.org/pdf/2310.07554',
+    uri: 'https://cseweb.ucsd.edu/classes/sp18/cse291-c/post/schedule/p74-dean.pdf',
     cache: true,
   });
 
@@ -55,8 +54,6 @@ export default function DrawScreen() {
             page={page}
             scale={scale}
             enablePaging={true}
-            showsHorizontalScrollIndicator={true}
-            showsVerticalScrollIndicator={true}
             onLoadComplete={(numberOfPages, _filePath) => {
               console.log(`Loaded ${numberOfPages} pages`);
             }}
