@@ -1,7 +1,7 @@
 import { Canvas, Path } from "@shopify/react-native-skia";
 import { GestureDetector } from "react-native-gesture-handler";
 import { StyleSheet, View, Text, useWindowDimensions } from "react-native";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ThemedView } from '../../components/ThemedView';
 import { useDrawing } from "@/hooks/useDrawing";
 import { Point } from "@/types/drawing";
@@ -21,11 +21,18 @@ export default function DrawScreen() {
     );
   }
 
-  // TODO: Remove the default URI
-  const [pdfSource] = useState({
-    uri: params.uri as string || '',
+  const [pdfSource, setPdfSource] = useState({
+    uri: params.uri as string,
     cache: true,
   });
+
+  useEffect(() => {
+    console.log('Params changed: ', params);
+    setPdfSource({
+      uri: params.uri as string,
+      cache: true,
+    });
+  }, [params.uri]);
 
   const pathToSvg = (points: Point[]) => {
     if (points.length < 1) return "";
