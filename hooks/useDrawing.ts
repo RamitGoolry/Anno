@@ -2,6 +2,10 @@ import { useState, useRef } from "react";
 import { Gesture, PointerType } from "react-native-gesture-handler";
 import { Point, DrawPath } from "@/types/drawing";
 
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 2;
+const MAX_VELOCITY = 3;
+
 function interpolatePoints(start: Point, end: Point): Point[] {
   const points: Point[] = [];
   const dx = end.x - start.x;
@@ -100,20 +104,23 @@ export function useDrawing() {
         return;
       }
     })
-    .onUpdate(({ translationX, translationY, pointerType }) => {
+    .onUpdate(({ velocityX, velocityY, pointerType }) => {
       if (pointerType != PointerType.TOUCH) {
         return;
       }
 
-      setTranslateX(translationX);
-      setTranslateY(translationY);
+      const clampedVelocityX = Math.max(Math.min(velocityX, MAX_VELOCITY), -MAX_VELOCITY);
+      const clampedVelocityY = Math.max(Math.min(velocityY, MAX_VELOCITY), -MAX_VELOCITY);
+
+      setTranslateX(prev => prev + clampedVelocityX);
+      setTranslateY(prev => prev + clampedVelocityY);
     });
 
   // Finger Navigation: Pinching for zooming
   const pinchGesture = Gesture.Pinch()
     .runOnJS(true)
     .onUpdate(({ scale }) => {
-      const clampedScale = Math.max(Math.min(scale, 5), 0.5);
+      const clampedScale = Math.max(Math.min(scale, MAX_ZOOM), MIN_ZOOM);
       setScale(clampedScale);
     });
 
