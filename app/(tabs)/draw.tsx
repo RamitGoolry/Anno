@@ -30,17 +30,19 @@ export default function DrawScreen() {
   };
 
   const renderedPaths = useMemo(() =>
-    paths.map((path, index) => (
-      <Path
-        key={index}
-        path={pathToSvg(path.points)}
-        strokeWidth={4}
-        style="stroke"
-        color="#000000"
-        strokeJoin="round"
-        strokeCap="round"
-      />
-    )), [paths]);
+    paths
+      .filter(path => path.page == page)
+      .map((path, index) => (
+        <Path
+          key={index}
+          path={pathToSvg(path.points)}
+          strokeWidth={4}
+          style="stroke"
+          color="#000000"
+          strokeJoin="round"
+          strokeCap="round"
+        />
+      )), [paths, page]);
 
   return (
     <GestureHandlerRootView style={styles.container}>

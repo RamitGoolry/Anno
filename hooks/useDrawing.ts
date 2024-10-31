@@ -5,7 +5,7 @@ import { Point, DrawPath } from "@/types/drawing";
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 5;
 
-const SWIPE_THRESHOLD = 150; // pixels to trigger page flip
+const SWIPE_THRESHOLD = 125; // pixels to trigger page flip
 
 function interpolatePoints(start: Point, end: Point): Point[] {
   const points: Point[] = [];
@@ -55,7 +55,6 @@ function usePageFlip() {
 
   return {
     page,
-    setPage,
     pageGesture,
   };
 }
@@ -63,7 +62,7 @@ function usePageFlip() {
 export function useDrawing() {
   const [paths, setPaths] = useState<DrawPath[]>([]);
   const [scale, setScale] = useState(1);
-  const { page, setPage, pageGesture } = usePageFlip();
+  const { page, pageGesture } = usePageFlip();
 
   const currentPath = useRef<DrawPath | null>(null);
   const previousPoint = useRef<Point | null>(null);
@@ -84,7 +83,8 @@ export function useDrawing() {
 
       const newPoint = { x, y };
       const newPath: DrawPath = {
-        points: [newPoint]
+        points: [newPoint],
+        page: page,
       };
       currentPath.current = newPath;
       previousPoint.current = newPoint;
@@ -101,6 +101,7 @@ export function useDrawing() {
         const newPoint = { x, y };
         const newPath: DrawPath = {
           points: [newPoint],
+          page: page,
         };
         currentPath.current = newPath;
         previousPoint.current = newPoint;

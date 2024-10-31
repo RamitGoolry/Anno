@@ -5,4 +5,5 @@ export interface Point {
 
 export interface DrawPath {
 	points: Point[];
+	page: number;
 }
