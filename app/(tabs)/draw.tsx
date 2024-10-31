@@ -1,4 +1,3 @@
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Canvas, Path } from "@shopify/react-native-skia";
 import { GestureDetector } from "react-native-gesture-handler";
 import { StyleSheet, View, Text, useWindowDimensions } from "react-native";
@@ -55,32 +54,30 @@ export default function DrawScreen() {
       )), [paths, page]);
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <ThemedView style={styles.container}>
-        {/* PDF Layer */}
-        <View style={styles.pdfContainer}>
-          <Pdf
-            source={pdfSource}
-            style={[styles.pdf, { width, height }]}
-            page={page}
-            scale={scale}
-            enablePaging={true}
-            onLoadComplete={(numberOfPages, _filePath) => {
-              console.log(`Loaded ${numberOfPages} pages`);
-            }}
-            onError={(error) => {
-              console.log(error);
-            }}
-          />
-        </View>
-        {/* Gesture Layer */}
-        <GestureDetector gesture={gesture}>
-          <Canvas style={{ flex: 1 }}>
-            {renderedPaths}
-          </Canvas>
-        </GestureDetector>
-      </ThemedView>
-    </GestureHandlerRootView>
+    <ThemedView style={styles.container}>
+      {/* PDF Layer */}
+      <View style={styles.pdfContainer}>
+        <Pdf
+          source={pdfSource}
+          style={[styles.pdf, { width, height }]}
+          page={page}
+          scale={scale}
+          enablePaging={true}
+          onLoadComplete={(numberOfPages, _filePath) => {
+            console.log(`Loaded ${numberOfPages} pages`);
+          }}
+          onError={(error) => {
+            console.log(error);
+          }}
+        />
+      </View>
+      {/* Gesture Layer */}
+      <GestureDetector gesture={gesture}>
+        <Canvas style={{ flex: 1 }}>
+          {renderedPaths}
+        </Canvas>
+      </GestureDetector>
+    </ThemedView>
   );
 }
 

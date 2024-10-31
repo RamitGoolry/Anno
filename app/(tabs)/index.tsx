@@ -6,7 +6,7 @@ import { useThemeColor } from '../../hooks/useThemeColor';
 import { useLocalFiles } from '@/hooks/useLocalFiles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { LocalFile } from '@/types/files';
-import { File, FolderOpen } from 'lucide-react';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
@@ -41,7 +41,7 @@ export default function HomeScreen() {
         style={styles.fileItem}
         onPress={() => openFile(item)}
       >
-        <File size={24} color={textColor} />
+        <MaterialCommunityIcons name="file-pdf-box" size={24} color={textColor} />
         <View style={styles.fileInfo}>
           <Text style={[styles.fileName, { color: textColor }]}>{item.name}</Text>
           <Text style={[styles.fileDate, { color: textColor }]}>{item.lastModified?.toLocaleString()}</Text>
@@ -61,7 +61,7 @@ export default function HomeScreen() {
           onPress={handleImport}
         >
           <View style={styles.buttonContent}>
-            <FolderOpen size={20} color={textColor} />
+            <MaterialCommunityIcons name="folder-plus" size={24} color={textColor} />
             <Text style={[styles.buttonText, { color: textColor }]}>
               Import PDF
             </Text>
