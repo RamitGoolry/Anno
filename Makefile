@@ -19,4 +19,4 @@ start:
 	npx expo start
 
 # Combined commands
-setup: clean build
+setup: clean install build

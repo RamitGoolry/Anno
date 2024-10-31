@@ -24,10 +24,6 @@ export function useDrawing() {
     return points;
   }
 
-  const clear = () => {
-    setPaths([]);
-  };
-
   const undo = () => {
     setPaths(prev => prev.slice(0, -1));
   };
