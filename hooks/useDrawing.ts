@@ -5,7 +5,7 @@ import { Point, DrawPath } from "@/types/drawing";
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 5;
 
-const FLIP_DELAY = 100;
+const SWIPE_THRESHOLD = 150; // pixels to trigger page flip
 
 function interpolatePoints(start: Point, end: Point): Point[] {
   const points: Point[] = [];
@@ -24,10 +24,46 @@ function interpolatePoints(start: Point, end: Point): Point[] {
   return points;
 }
 
+function usePageFlip() {
+  const [page, setPage] = useState(1);
+  const startX = useRef(0);
+
+  const pageGesture = Gesture.Pan()
+    .minPointers(1)
+    .runOnJS(true)
+    .onBegin(({ x, pointerType }) => {
+      if (pointerType != PointerType.TOUCH) {
+        return;
+      }
+
+      startX.current = x;
+    })
+    .onUpdate(({ x, pointerType }) => {
+      if (pointerType != PointerType.TOUCH) {
+        return;
+      }
+
+      const deltaX = x - startX.current;
+      if (deltaX < -SWIPE_THRESHOLD) {
+        setPage(prev => prev + 1);
+        startX.current = x;
+      } else if (deltaX > SWIPE_THRESHOLD) {
+        setPage(prev => prev - 1);
+        startX.current = x;
+      }
+    });
+
+  return {
+    page,
+    setPage,
+    pageGesture,
+  };
+}
+
 export function useDrawing() {
   const [paths, setPaths] = useState<DrawPath[]>([]);
   const [scale, setScale] = useState(1);
-  const [page, setPage] = useState(1);
+  const { page, setPage, pageGesture } = usePageFlip();
 
   const currentPath = useRef<DrawPath | null>(null);
   const previousPoint = useRef<Point | null>(null);
@@ -92,27 +128,6 @@ export function useDrawing() {
     .runOnJS(true)
     .onEnd(() => {
       undo();
-    });
-
-  // Finger Navigation: Page navigation
-  const pageGesture = Gesture.Pan()
-    .minPointers(1)
-    .runOnJS(true)
-    .onBegin(({ pointerType }) => {
-      if (pointerType != PointerType.TOUCH) {
-        return;
-      }
-    })
-    .onUpdate(({ velocityX, pointerType }) => {
-      if (pointerType != PointerType.TOUCH) {
-        return;
-      }
-
-      if (velocityX < 0) {
-        setPage(prev => prev + 1);
-      } else if (velocityX > 0) {
-        setPage(prev => prev - 1);
-      }
     });
 
   // Finger Navigation: Pinching for zooming
