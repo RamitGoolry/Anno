@@ -7,11 +7,13 @@ import { useDrawing } from "@/hooks/useDrawing";
 import { Point } from "@/types/drawing";
 import Pdf from 'react-native-pdf';
 import { useLocalSearchParams } from "expo-router";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function DrawScreen() {
   const { width, height } = useWindowDimensions();
   const { paths, gesture, scale, page } = useDrawing();
   const params = useLocalSearchParams();
+  const backgroundColor = useThemeColor({}, 'background');
 
   if (!params.uri) {
     return (
@@ -66,7 +68,7 @@ export default function DrawScreen() {
       <View style={styles.pdfContainer}>
         <Pdf
           source={pdfSource}
-          style={[styles.pdf, { width, height }]}
+          style={[styles.pdf, { width, height, backgroundColor }]}
           page={page}
           scale={scale}
           enablePaging={true}

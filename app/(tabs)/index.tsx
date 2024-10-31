@@ -83,9 +83,9 @@ export default function HomeScreen() {
         style={styles.deleteButton}
       >
         <MaterialCommunityIcons
-          name="delete-outline"
+          name="delete"
           size={24}
-          color="red"
+          color="#880000"
         />
       </TouchableOpacity>
     </View>
